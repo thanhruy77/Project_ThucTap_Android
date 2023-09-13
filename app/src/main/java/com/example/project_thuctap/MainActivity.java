@@ -32,8 +32,11 @@ public class MainActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         users = database.getReference("users");
 
-        adapter = new MyAdapter(dataSnapshots);
+        adapter = new MyAdapter(this, dataSnapshots);
         recyclerView.setAdapter(adapter);
+
+
+
 
         users.addChildEventListener(new ChildEventListener() {
             @Override
