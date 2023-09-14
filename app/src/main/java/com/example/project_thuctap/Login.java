@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,9 +31,12 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+
         EditText tk = findViewById(R.id.tk);
         EditText mk = findViewById(R.id.mk);
         Button login = findViewById(R.id.dangnhap);
+        TextView singup = findViewById(R.id.singup);
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -47,6 +51,7 @@ public class Login extends AppCompatActivity {
             autoLogin(savedEmail);
         }
 
+        // xử lý đăng nhập
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,6 +124,19 @@ public class Login extends AppCompatActivity {
                 }
             }
         });
+
+
+
+        // intent sang Register
+        singup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Login.this, RegisterActivity.class);
+                startActivity(intent);
+                finishAffinity();
+            }
+        });
+
     }
 
     private void autoLogin(String savedEmail) {

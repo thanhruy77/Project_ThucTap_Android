@@ -83,4 +83,11 @@
             android:layout_gravity="center"
             android:visibility="gone" />
     </androidx.cardview.widget.CardView>
+    <TextView
+        android:id="@+id/singup"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Do you want sing up?"/>
 </LinearLayout>
