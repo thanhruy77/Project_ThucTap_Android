@@ -22,14 +22,14 @@
             android:value="AIzaSyDLJYhBiPRYcURpwlmCE6Lgl-4MZ7b5NJE" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".Login"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Login" />
+        <activity android:name=".MainActivity" />
         <activity android:name=".MapsActivity" />
     </application>
 

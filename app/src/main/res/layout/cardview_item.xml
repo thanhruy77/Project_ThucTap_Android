@@ -11,6 +11,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="240px"
+        android:background="@drawable/bg_white_conner_10_border_gray"
         android:orientation="vertical"
         android:padding="10dp">
 
@@ -19,11 +20,11 @@
             android:id="@+id/keyTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
+            android:layout_marginStart="2dp"
             android:layout_marginTop="2dp"
-            android:text="Key:"
+            android:text="Email:"
             android:textColor="@color/black"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -32,30 +33,31 @@
             android:id="@+id/dataTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="4dp"
             android:text="Name: "
-            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:textSize="13sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/viewButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_gravity="center_horizontal"
-            android:text="Xem chi tiết"
+            android:background="@drawable/detail"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/showLocationButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginEnd="5dp"
-            android:text="Hiển thị vị trí"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/vitri"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/viewButton"
             app:layout_constraintTop_toTopOf="parent"

@@ -1,6 +1,9 @@
 package com.example.project_thuctap;
 
 // MyAdapter.java
+import static android.content.Intent.getIntent;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -23,24 +26,24 @@ import java.util.Map;
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     private Map<String, String> dataMap = new HashMap<>();
     private List<DataSnapshot> dataSnapshots;
-
     private Context context;
-
     public MyAdapter(Context context, List<DataSnapshot> dataSnapshots) {
         this.context = context;
         this.dataSnapshots = dataSnapshots;
     }
-
-
     private int selectedPosition = RecyclerView.NO_POSITION; // Đặt giá trị mặc định là NO_POSITION
-
     public void setSelectedPosition(int position) {
         selectedPosition = position;
         notifyDataSetChanged(); // Cập nhật lại RecyclerView để hiển thị sự thay đổi
     }
-
     public int getSelectedPosition() {
         return selectedPosition;
+    }
+
+
+    private String userEmail; // Thêm biến để lưu trữ email
+    public void setUserEmail(String email) {
+        this.userEmail = email;
     }
 
 
@@ -52,6 +55,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         return new MyViewHolder(itemView);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         DataSnapshot dataSnapshot = dataSnapshots.get(position);
@@ -65,8 +69,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         dataMap.put(key, nameValue);
 
         // Hiển thị key và value trong CardView
-        holder.keyTextView.setText("Người: " + key);
-        holder.dataTextView.setText(dataMap.get(key));
+        holder.keyTextView.setText("Email: " + key);
+        holder.dataTextView.setText("Name: "+nameValue);
 
         // Xác định nút "Xem chi tiết" cho cardview hiện tại
         Button viewButton = holder.itemView.findViewById(R.id.viewButton);
@@ -95,7 +99,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     }
 
 
-
     private void showDialog(String key, String nameValue, String dateValue) {
         // Tạo Dialog và hiển thị dữ liệu trong đó
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -115,6 +118,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             // Chuyển sang Activity khác để hiển thị vị trí trên bản đồ
             Intent intent = new Intent(context, MapsActivity.class);
             intent.putExtra("key",key);
+            intent.putExtra("email",userEmail);
             intent.putExtra("latitude", Double.parseDouble(latitudeValue));
             intent.putExtra("longitude", Double.parseDouble(longitudeValue));
             context.startActivity(intent);

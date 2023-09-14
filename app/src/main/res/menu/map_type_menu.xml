@@ -15,9 +15,5 @@
         android:id="@+id/menu_focus_location"
         android:title="Focus vào vị trí"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/setting"
-        android:title="Thay đổi thông tin"
-        app:showAsAction="never" />
 </menu>
 

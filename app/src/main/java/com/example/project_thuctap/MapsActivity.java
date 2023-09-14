@@ -52,7 +52,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     double latitude; // Khai báo biến ở đây, không cần lấy từ Intent ban đầu
     double longitude;
-    String key;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         String key = getIntent().getStringExtra("key");
+        String email = getIntent().getStringExtra("email");
         latitude = getIntent().getDoubleExtra("latitude", 0.0);
         longitude = getIntent().getDoubleExtra("longitude", 0.0);
 
@@ -71,7 +71,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         DatabaseReference getlocation = FirebaseDatabase.getInstance().getReference();
-        getlocation.child("users/"+key+"/latitude").addValueEventListener(new ValueEventListener() {
+        getlocation.child("admin/"+email+"/users/"+key+"/latitude").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 latitude = Double.parseDouble(snapshot.getValue().toString());
@@ -82,7 +82,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        getlocation.child("users/"+key+"/longitude").addValueEventListener(new ValueEventListener() {
+        getlocation.child("admin/"+email+"/users/"+key+"/longitude").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 longitude = Double.parseDouble(snapshot.getValue().toString());
@@ -137,7 +137,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng initialLocation = new LatLng(latitude, longitude);
 
         // Di chuyển camera tới vị trí mới và giữ nguyên chế độ zoom 15
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(initialLocation, 15);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(initialLocation, 13);
         mMap.moveCamera(cameraUpdate);
         mMap.getUiSettings().setZoomControlsEnabled(true);
         updateMapLocation();

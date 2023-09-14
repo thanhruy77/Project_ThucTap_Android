@@ -1,34 +1,30 @@
 package com.example.project_thuctap;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.Dialog;
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.project_thuctap.MainActivity;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import java.util.Objects;
 
 public class Login extends AppCompatActivity {
     FirebaseDatabase database = FirebaseDatabase.getInstance();
-    private DatabaseReference tkdatabase =  database.getReference("login/tk");
-    private DatabaseReference mkdatabase = database.getReference("login/mk");
-    private ProgressDialog loginning;
-    private Dialog dialog;
-
-
+    private DatabaseReference emaildatabase;
+    private DatabaseReference mkdatabase;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,80 +32,116 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         EditText tk = findViewById(R.id.tk);
         EditText mk = findViewById(R.id.mk);
-        TextView qmk = findViewById(R.id.qmk);
         Button login = findViewById(R.id.dangnhap);
-        loginning = new ProgressDialog(this);
 
+        progressBar = findViewById(R.id.progressBar);
 
-        // su ly dang nhap
+        // Kiểm tra nếu đã lưu thông tin đăng nhập trước đó
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        String savedEmail = sharedPreferences.getString("email", "");
+
+        if (!savedEmail.isEmpty()) {
+            // Nếu đã lưu thông tin đăng nhập, tự động đăng nhập và chuyển đến MainActivity
+            progressBar.setVisibility(View.VISIBLE);
+            login.setVisibility(View.GONE);
+            autoLogin(savedEmail);
+        }
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String valuetk = tk.getText().toString().trim();
+                String valueEmail = tk.getText().toString().trim().toLowerCase();
                 String valuemk = mk.getText().toString().trim();
-                tkdatabase.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!valueEmail.isEmpty() && !valuemk.isEmpty()) {
+                    String formatValueEmail = valueEmail.replaceAll("[.@\\s]+", "").toLowerCase();
+                    emaildatabase = database.getReference("admin/" + formatValueEmail + "/email");
 
-                        String tk =snapshot.getValue(String.class);
-                        if(tk != null && tk.equals(valuetk)){
-                            mkdatabase.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    String mk = snapshot.getValue(String.class);
-                                    if(mk != null && mk.equals(valuemk)){
-                                        loginning.setMessage("Đang Đăng Nhập");
-                                        loginning.show();
-                                        new Handler().postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                loginning.dismiss();
-                                            }
-                                        }, 500);
-                                        new Handler().postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Intent i = new Intent(Login.this, MapsActivity.class);
-                                                startActivity(i);
-//                                                finishAffinity();
-                                            }
-                                        }, 150);
-                                    } else {
-                                        loginning.setMessage("Đang Đăng Nhập");
-                                        loginning.show();
-                                        new Handler().postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                loginning.dismiss();
-                                            }
-                                        }, 1000);
-                                        new Handler().postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(Login.this,
-                                                        "Tài Khoản hoặc Mật khẩu sai!!!", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }, 1000);
+                    // Ẩn nút đăng nhập và hiển thị ProgressBar
+                    login.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.VISIBLE);
+
+                    emaildatabase.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            String tk = snapshot.getValue(String.class);
+                            if (tk != null && tk.equals(valueEmail)) {
+                                mkdatabase = database.getReference("admin/" + formatValueEmail + "/password");
+                                mkdatabase.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        String mk = Objects.requireNonNull(snapshot.getValue()).toString();
+                                        if (mk.equals(valuemk)) {
+                                            // Lưu thông tin đăng nhập sau khi đăng nhập thành công
+                                            SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+                                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                                            editor.putString("email", formatValueEmail);
+                                            editor.apply();
+
+                                            // Ẩn ProgressBar và chuyển đến MainActivity
+                                            progressBar.setVisibility(View.GONE);
+                                            Intent i = new Intent(Login.this, MainActivity.class);
+                                            i.putExtra("email", formatValueEmail);
+                                            startActivity(i);
+                                            login.setVisibility(View.VISIBLE);
+                                            finishAffinity();
+                                        } else {
+                                            // Ẩn ProgressBar, hiển thị nút đăng nhập và thông báo lỗi
+                                            progressBar.setVisibility(View.GONE);
+                                            login.setVisibility(View.VISIBLE);
+                                            Toast.makeText(Login.this,
+                                                    "Tài Khoản hoặc Mật khẩu sai!!!", Toast.LENGTH_SHORT).show();
+                                        }
                                     }
-                                }
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {
-                                }
-                            });
-                        }
-                    }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                });
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                    }
+                                });
+                            } else {
+                                // Email không tồn tại
+                                progressBar.setVisibility(View.GONE);
+                                login.setVisibility(View.VISIBLE);
+                                Toast.makeText(Login.this,
+                                        "Email không tồn tại!!!", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                        }
+                    });
+                } else {
+                    // Ẩn ProgressBar, hiển thị nút đăng nhập và thông báo lỗi
+                    progressBar.setVisibility(View.GONE);
+                    login.setVisibility(View.VISIBLE);
+                    Toast.makeText(Login.this,
+                            "Không được để trống!!!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+    }
 
+    private void autoLogin(String savedEmail) {
+        // Tự động đăng nhập bằng email đã lưu
+        // Thực hiện các thao tác đăng nhập tại đây
+        // Sau khi đăng nhập thành công, chuyển đến MainActivity
 
+        progressBar.setVisibility(View.VISIBLE);
+        emaildatabase = database.getReference("admin/" + savedEmail + "/email");
+        emaildatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // Đã đăng nhập trước đó, tiến hành đăng nhập và chuyển đến MainActivity
+                progressBar.setVisibility(View.GONE);
+                Intent i = new Intent(Login.this, MainActivity.class);
+                i.putExtra("email", savedEmail);
+                startActivity(i);
+                finish(); // Đóng trang đăng nhập
+            }
 
-
-
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
     }
 }
