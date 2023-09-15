@@ -1,7 +1,6 @@
 package com.example.project_thuctap;
 
 // MyAdapter.java
-import static android.content.Intent.getIntent;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -61,6 +60,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         DataSnapshot dataSnapshot = dataSnapshots.get(position);
         String nameValue = String.valueOf(dataSnapshot.child("name").getValue());
         String dateValue = String.valueOf(dataSnapshot.child("date").getValue());
+        String passwordValue = String.valueOf(dataSnapshot.child("password").getValue());
         String key = dataSnapshot.getKey();
         String latitudeValue = String.valueOf(dataSnapshot.child("latitude").getValue());
         String longitudeValue = String.valueOf(dataSnapshot.child("longitude").getValue());
@@ -69,18 +69,29 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         dataMap.put(key, nameValue);
 
         // Hiển thị key và value trong CardView
-        holder.keyTextView.setText("Email: " + key);
-        holder.dataTextView.setText("Name: "+nameValue);
+        holder.keyTextView.setText(nameValue);
+        holder.dataTextView.setText(dateValue);
 
-        // Xác định nút "Xem chi tiết" cho cardview hiện tại
-        Button viewButton = holder.itemView.findViewById(R.id.viewButton);
-        viewButton.setOnClickListener(v -> showDialog(key, nameValue,dateValue));
 
         // Xác định nút "Hiển thị vị trí" cho cardview hiện tại
         Button locationButton = holder.itemView.findViewById(R.id.showLocationButton);
-        locationButton.setOnClickListener(v -> showLocationOnMap(key,latitudeValue, longitudeValue));
-    }
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Kiểm tra xem cả hai node "latitude" và "longitude" có tồn tại không
+                if (dataSnapshot.hasChild("latitude") && dataSnapshot.hasChild("longitude")) {
+                    showLocationOnMap(key, latitudeValue, longitudeValue);
+                } else {
+                    Toast.makeText(context, "Không có dữ liệu vị trí", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
+        // Xác định nút "Xem chi tiết" cho cardview hiện tại
+        Button viewButton = holder.itemView.findViewById(R.id.viewButton);
+        viewButton.setOnClickListener(v -> showDialog(key,passwordValue, nameValue,dateValue));
+
+    }
 
     @Override
     public int getItemCount() {
@@ -98,12 +109,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         }
     }
 
-
-    private void showDialog(String key, String nameValue, String dateValue) {
+    private void showDialog(String key,String passwordValue, String nameValue, String dateValue) {
         // Tạo Dialog và hiển thị dữ liệu trong đó
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Thông tin chi tiết");
-        builder.setMessage("Key: " + key + "\nTên: " + nameValue +"\nNăm sinh: "+dateValue);
+        builder.setMessage("Email: " + key + "\nPassWord:"+ passwordValue+ "\nTên: " + nameValue +"\nNăm sinh: "+dateValue);
         builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

@@ -24,7 +24,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference emaildatabase;
-    private DatabaseReference databaseadmin;
 
 
     @Override
