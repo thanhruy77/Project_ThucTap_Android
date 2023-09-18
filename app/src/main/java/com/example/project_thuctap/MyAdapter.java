@@ -59,8 +59,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         DataSnapshot dataSnapshot = dataSnapshots.get(position);
         String nameValue = String.valueOf(dataSnapshot.child("name").getValue());
-        String dateValue = String.valueOf(dataSnapshot.child("date").getValue());
-        String passwordValue = String.valueOf(dataSnapshot.child("password").getValue());
+        String phoneValue = String.valueOf(dataSnapshot.child("phone").getValue());
         String key = dataSnapshot.getKey();
         String latitudeValue = String.valueOf(dataSnapshot.child("latitude").getValue());
         String longitudeValue = String.valueOf(dataSnapshot.child("longitude").getValue());
@@ -70,7 +69,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
         // Hiển thị key và value trong CardView
         holder.keyTextView.setText(nameValue);
-        holder.dataTextView.setText(dateValue);
+        holder.dataTextView.setText(phoneValue);
 
 
         // Xác định nút "Hiển thị vị trí" cho cardview hiện tại
@@ -89,7 +88,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
         // Xác định nút "Xem chi tiết" cho cardview hiện tại
         Button viewButton = holder.itemView.findViewById(R.id.viewButton);
-        viewButton.setOnClickListener(v -> showDialog(key,passwordValue, nameValue,dateValue));
+        viewButton.setOnClickListener(v -> showDialog(key,phoneValue, nameValue));
 
     }
 
@@ -109,11 +108,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         }
     }
 
-    private void showDialog(String key,String passwordValue, String nameValue, String dateValue) {
+    private void showDialog(String key,String phoneVAlue, String nameValue) {
         // Tạo Dialog và hiển thị dữ liệu trong đó
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Thông tin chi tiết");
-        builder.setMessage("Email: " + key + "\nPassWord:"+ passwordValue+ "\nTên: " + nameValue +"\nNăm sinh: "+dateValue);
+        builder.setMessage("Email: " + key + "\nPhone:"+ phoneVAlue+ "\nTên: " + nameValue);
         builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
