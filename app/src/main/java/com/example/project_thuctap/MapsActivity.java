@@ -2,10 +2,13 @@ package com.example.project_thuctap;
 
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -20,6 +23,7 @@ import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.Manifest;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -45,12 +49,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ActivityMapsBinding binding;
     private boolean isLocationDataReceived = false; // Biến kiểm tra dữ liệu đã sẵn sàng
     private LatLng trackedLocation; // Biến để lưu trữ vị trí đang theo dõi
-    private String name ;
-
+    private String name;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 123; // Thay đổi giá trị này thành giá trị bạn muốn (số nguyên bất kỳ).
 
     private Button toggleButton;
 
-    double latitude; // Khai báo biến ở đây, không cần lấy từ Intent ban đầu
+    double latitude;
     double longitude;
 
     @Override
@@ -71,18 +75,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         DatabaseReference getlocation = FirebaseDatabase.getInstance().getReference();
-        getlocation.child("admin/"+email+"/users/"+key+"/latitude").addValueEventListener(new ValueEventListener() {
+        getlocation.child("admin/" + email + "/users/" + key + "/latitude").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 latitude = Double.parseDouble(snapshot.getValue().toString());
                 updateMapLocation(); // Cập nhật vị trí trên bản đồ khi có dữ liệu mới.
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
             }
         });
 
-        getlocation.child("admin/"+email+"/users/"+key+"/longitude").addValueEventListener(new ValueEventListener() {
+        getlocation.child("admin/" + email + "/users/" + key + "/longitude").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 longitude = Double.parseDouble(snapshot.getValue().toString());
@@ -104,6 +109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
+
     private void showPopupMenu(View view) {
         PopupMenu popupMenu = new PopupMenu(this, view);
         popupMenu.getMenuInflater().inflate(R.menu.map_type_menu, popupMenu.getMenu());
@@ -136,6 +142,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Khởi tạo vị trí ban đầu
         LatLng initialLocation = new LatLng(latitude, longitude);
 
+        // Kiểm tra quyền truy cập vị trí
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        }
+
         // Di chuyển camera tới vị trí mới và giữ nguyên chế độ zoom 15
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(initialLocation, 13);
         mMap.moveCamera(cameraUpdate);
@@ -167,6 +180,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return super.onOptionsItemSelected(item);
         }
     }
+
     private void focusOnCurrentLocation() {
         if (mMap != null && trackedLocation != null) {
             CameraPosition cameraPosition = mMap.getCameraPosition();
@@ -175,5 +189,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Quyền truy cập vị trí đã được cấp, hiển thị vị trí người dùng trên bản đồ
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    mMap.setMyLocationEnabled(true);
+                }
+            } else {
+                // Người dùng từ chối quyền truy cập vị trí, bạn có thể thông báo cho họ hoặc thực hiện xử lý khác
+                Toast.makeText(this, "Ứng dụng cần quyền truy cập vị trí để hoạt động.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
 }
