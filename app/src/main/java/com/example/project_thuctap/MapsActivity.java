@@ -50,7 +50,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean isLocationDataReceived = false; // Biến kiểm tra dữ liệu đã sẵn sàng
     private LatLng trackedLocation; // Biến để lưu trữ vị trí đang theo dõi
     private String name;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 123; // Thay đổi giá trị này thành giá trị bạn muốn (số nguyên bất kỳ).
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 123;
 
     private Button toggleButton;
 

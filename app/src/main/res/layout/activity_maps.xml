@@ -9,11 +9,12 @@
     <!-- Map Fragment -->
     <Button
         android:id="@+id/toggle_button"
-        android:layout_width="100px"
-        android:layout_height="100px"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="5dp"
+        android:backgroundTintMode="screen"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="15dp"
         android:layout_marginBottom="5dp"

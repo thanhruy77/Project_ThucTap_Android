@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         adapter = new MyAdapter(this, dataSnapshots);
         adapter.setUserEmail(email); // Thiết lập email
+        adapter.setEmailAdmin(email); // Thiết lập emailadmin
         recyclerView.setAdapter(adapter);
 
 

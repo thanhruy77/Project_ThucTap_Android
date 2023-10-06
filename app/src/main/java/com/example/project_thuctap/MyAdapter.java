@@ -3,9 +3,11 @@ package com.example.project_thuctap;
 // MyAdapter.java
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,16 +18,24 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     private Map<String, String> dataMap = new HashMap<>();
     private List<DataSnapshot> dataSnapshots;
     private Context context;
+    private String emailadmin;
     public MyAdapter(Context context, List<DataSnapshot> dataSnapshots) {
         this.context = context;
         this.dataSnapshots = dataSnapshots;
@@ -44,6 +54,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public void setUserEmail(String email) {
         this.userEmail = email;
     }
+
+    public void setEmailAdmin(String email) {
+        this.emailadmin = email;
+    }
+
+
 
 
     @NonNull
@@ -119,7 +135,40 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
                 dialog.dismiss();
             }
         });
+        builder.setNegativeButton("Xóa người này", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("admin/"+emailadmin+"/users/"+key);
+                databaseReference.child("deleteEEPROM").setValue(1);
+
+                // Gọi hàm showLoadingDialog để hiển thị hộp thoại
+                showLoadingDialog();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        dismissLoadingDialog();
+                        databaseReference.removeValue();
+                        Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                }, 3000);
+            }
+        });
         builder.show();
+    }
+
+    private AlertDialog loadingDialog;
+
+    private void showLoadingDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage("Đang xóa...");
+        loadingDialog = builder.create();
+        loadingDialog.show();
+    }
+    private void dismissLoadingDialog() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
+            loadingDialog.dismiss();
+        }
     }
 
     private void showLocationOnMap( String key,String latitudeValue, String longitudeValue) {
@@ -131,6 +180,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             intent.putExtra("latitude", Double.parseDouble(latitudeValue));
             intent.putExtra("longitude", Double.parseDouble(longitudeValue));
             context.startActivity(intent);
+            // Gọi overridePendingTransition sau khi startActivity
+            ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         } else {
             // Xử lý trường hợp dữ liệu không hợp lệ (ví dụ: chuỗi rỗng hoặc null)
             Toast.makeText(context, "Dữ liệu không hợp lệ", Toast.LENGTH_SHORT).show();
