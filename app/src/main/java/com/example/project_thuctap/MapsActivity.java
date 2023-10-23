@@ -42,6 +42,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DecimalFormat;
 import java.util.Objects;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -75,6 +76,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         DatabaseReference getlocation = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference getSpeed = FirebaseDatabase.getInstance().getReference().child("Speed");
         getlocation.child("admin/" + email + "/users/" + key + "/latitude").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -99,6 +101,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        Button viewspeed = findViewById(R.id.speed);
+        getSpeed.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                double value = (double) snapshot.getValue();
+                DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                String fomated = decimalFormat.format(value);
+                viewspeed.setText(fomated+" M/s");
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
 
         // chuyển đổi chế độ map
         toggleButton = findViewById(R.id.toggle_button);
@@ -122,7 +137,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                         break;
                     case R.id.menu_satellite:
-                        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                         break;
                     case R.id.menu_focus_location:
                         focusOnCurrentLocation(); // gọi hàm focusOnCurrentLocation
@@ -149,7 +164,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         }
 
-        // Di chuyển camera tới vị trí mới và giữ nguyên chế độ zoom 15
+        // Di chuyển camera tới vị trí mới và giữ nguyên chế độ zoom 13
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(initialLocation, 13);
         mMap.moveCamera(cameraUpdate);
         mMap.getUiSettings().setZoomControlsEnabled(true);

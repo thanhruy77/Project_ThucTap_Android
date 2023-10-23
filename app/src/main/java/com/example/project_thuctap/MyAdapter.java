@@ -8,10 +8,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
+import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +44,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         this.dataSnapshots = dataSnapshots;
     }
     private int selectedPosition = RecyclerView.NO_POSITION; // Đặt giá trị mặc định là NO_POSITION
+
     public void setSelectedPosition(int position) {
         selectedPosition = position;
         notifyDataSetChanged(); // Cập nhật lại RecyclerView để hiển thị sự thay đổi
@@ -138,20 +142,105 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         builder.setNegativeButton("Xóa người này", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("admin/"+emailadmin+"/users/"+key);
-                databaseReference.child("deleteEEPROM").setValue(1);
 
-                // Gọi hàm showLoadingDialog để hiển thị hộp thoại
-                showLoadingDialog();
-                new Handler().postDelayed(new Runnable() {
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("admin/"+emailadmin+"/users/"+key);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Bạn có chắc chắn muốn xóa không?");
+
+                builder.setPositiveButton("Đóng", new DialogInterface.OnClickListener() {
                     @Override
-                    public void run() {
-                        dismissLoadingDialog();
-                        databaseReference.removeValue();
-                        Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
+                    public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
-                }, 3000);
+                });
+                builder.setNegativeButton("Đồng ý", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        databaseReference.child("deleteEEPROM").setValue(1);
+                        // Gọi hàm showLoadingDialog để hiển thị hộp thoại
+                        showLoadingDialog();
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                dismissLoadingDialog();
+                                databaseReference.removeValue();
+                                Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            }
+                        }, 3000);
+                    }
+                });
+                builder.show();
+            }
+        });
+        builder.setNeutralButton("Sửa", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("admin/"+emailadmin+"/users/"+key);
+                dialog.dismiss();
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    // Tạo 1 dialog
+                    builder.setTitle("Sửa thông tin");
+
+                    // Tạo layout cho dialog
+                    LinearLayout layout = new LinearLayout(context);
+                    layout.setOrientation(LinearLayout.VERTICAL);
+
+                    // Tạo các EditText và thêm vào layout
+                    final EditText editText1 = new EditText(context);
+                    editText1.setHint("Tên");
+                    layout.addView(editText1);
+
+                    final EditText editText2 = new EditText(context);
+                    editText2.setHint("Số Điện Thoại");
+                    InputFilter[] filters = new InputFilter[1];
+                    filters[0] = new InputFilter.LengthFilter(10); // Hạn chế độ dài là 10 ký tự
+                    editText2.setFilters(filters);
+                    layout.addView(editText2);
+
+                    final EditText editText3 = new EditText(context);
+                    editText3.setHint("Email");
+                    layout.addView(editText3);
+
+                    builder.setView(layout);
+
+                    // Thiết lập nút đồng ý và xử lý sự kiện khi nút đồng ý được nhấn
+                    builder.setNegativeButton("Đồng ý", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String name = editText1.getText().toString().trim();
+                            String phone = editText2.getText().toString().trim();
+                            String regex = "^[0-9]{10}$";
+                            String email = editText3.getText().toString().trim();
+                            String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+
+
+                            if ((name.isEmpty() && phone.isEmpty() && email.isEmpty())) {
+                                Toast.makeText(context, "Không được để trống!", Toast.LENGTH_SHORT).show();
+                            } else if (!phone.matches(regex)) {
+                                Toast.makeText(context, "Số điện thoại có 10 ký tự và từ 0 - 9", Toast.LENGTH_SHORT).show();
+                            } else if (!email.matches(emailPattern)) {
+                                Toast.makeText(context, "Email không hợp lệ!!!", Toast.LENGTH_SHORT).show();
+                            }else {
+                                databaseReference.child("name").setValue(name);
+                                databaseReference.child("phone").setValue(phone);
+                                databaseReference.child("email").setValue(email);
+                                Toast.makeText(context, "Sửa thành công", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            }
+                        }
+                    });
+
+                    // Thiết lập nút từ chối và xử lý sự kiện khi nút từ chối được nhấn
+                    builder.setPositiveButton("Hủy", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    // Tạo và hiển thị dialog
+                    builder.create().show();
             }
         });
         builder.show();
@@ -181,6 +270,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             intent.putExtra("longitude", Double.parseDouble(longitudeValue));
             context.startActivity(intent);
             // Gọi overridePendingTransition sau khi startActivity
+            // trong đó ( animation đầu sẽ là của activity bên kia, còn animaton sau là của activity hiện tại)
             ((Activity) context).overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         } else {
             // Xử lý trường hợp dữ liệu không hợp lệ (ví dụ: chuỗi rỗng hoặc null)
