@@ -76,7 +76,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         DatabaseReference getlocation = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference getSpeed = FirebaseDatabase.getInstance().getReference().child("Speed");
+        DatabaseReference getSpeed = FirebaseDatabase.getInstance().getReference().child("Speed/speedkm");
         getlocation.child("admin/" + email + "/users/" + key + "/latitude").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -105,10 +105,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         getSpeed.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                double value = (double) snapshot.getValue();
-                DecimalFormat decimalFormat = new DecimalFormat("0.00");
-                String fomated = decimalFormat.format(value);
-                viewspeed.setText(fomated+" M/s");
+                Object value = snapshot.getValue();
+                if (value != null) {
+                    double doubleValue = 0.0; // Khởi tạo giá trị mặc định là 0
+
+                    if (value instanceof Integer) {
+                        int intValue = (Integer) value;
+                        doubleValue = (double) intValue;
+                    } else if (value instanceof Long) {
+                        long longValue = (Long) value;
+                        doubleValue = (double) longValue;
+                    } else if (value instanceof Double) {
+                        doubleValue = (Double) value;
+                    }
+
+                    DecimalFormat decimalFormat = new DecimalFormat("0.00");
+                    String formatted = decimalFormat.format(doubleValue);
+                    viewspeed.setText(formatted + " Km/h");
+                } else {
+                    // Xử lý trường hợp giá trị là null (0)
+                    viewspeed.setText("0.00 Km/h");
+                }
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -179,9 +196,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.clear();
             mMap.addMarker(new MarkerOptions().position(location).title(name));
 
-            // Di chuyển camera tới vị trí mới và giữ nguyên chế độ zoom
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(location, mMap.getCameraPosition().zoom);
-            mMap.moveCamera(cameraUpdate);
+            
         }
     }
 

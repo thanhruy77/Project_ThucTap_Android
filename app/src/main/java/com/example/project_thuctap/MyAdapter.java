@@ -168,7 +168,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
                                 Toast.makeText(context, "Xóa thành công", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             }
-                        }, 3000);
+                        }, 6000);
                     }
                 });
                 builder.show();
