@@ -19,8 +19,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -29,12 +32,18 @@ public class MainActivity extends AppCompatActivity {
 
     String email;
 
+    String emailuser;
+    String phoneuser;
+    String nameuser;
+
     private List<DataSnapshot> dataSnapshots = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Button settinguser = findViewById(R.id.user);
+
 
          email = getIntent().getStringExtra("email");
 
@@ -51,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         Button logout = findViewById(R.id.logout);
-
         // đang xuất
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,8 +90,6 @@ public class MainActivity extends AppCompatActivity {
                 dialog.show();
             }
         });
-
-
         // hiển thị users
         users.addChildEventListener(new ChildEventListener() {
             @Override
@@ -141,6 +147,56 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 // Xử lý lỗi (nếu cần)
+            }
+        });
+
+
+
+        // gửi dữ liệu người dùng
+        DatabaseReference datauser = FirebaseDatabase.getInstance().getReference().child("admin/"+email);
+
+        datauser.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                emailuser = Objects.requireNonNull(snapshot.child("email").getValue()).toString();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+
+        datauser.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                nameuser = Objects.requireNonNull(snapshot.child("name").getValue()).toString();
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        datauser.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                phoneuser = Objects.requireNonNull(snapshot.child("phone").getValue()).toString();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        // qua kết bạn
+        settinguser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, Friends.class);
+                intent.putExtra("email",email);
+                intent.putExtra("emailuser",emailuser);
+                intent.putExtra("nameuser",nameuser);
+                intent.putExtra("phoneuser",phoneuser);
+                startActivity(intent);
             }
         });
     }

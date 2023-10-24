@@ -116,7 +116,7 @@
             android:drawableLeft="@drawable/date"
             android:drawablePadding="10dp"
             android:ems="10"
-            android:hint="Date"
+            android:hint="Phone"
             android:inputType="textPersonName"
             android:paddingLeft="15dp"
             android:paddingTop="10dp"

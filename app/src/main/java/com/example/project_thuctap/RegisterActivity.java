@@ -71,7 +71,8 @@ public class RegisterActivity extends AppCompatActivity {
                                 emaildatabase.child(formatEmail).child("email").setValue(EmailValue);
                                 emaildatabase.child(formatEmail).child("password").setValue(PasswordValue);
                                 emaildatabase.child(formatEmail).child("name").setValue(NameValue);
-                                emaildatabase.child(formatEmail).child("date").setValue(DateValue);
+                                emaildatabase.child(formatEmail).child("phone").setValue(DateValue);
+
                             }
                         }
                         @Override
