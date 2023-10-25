@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
@@ -48,6 +49,8 @@ public class Friends extends AppCompatActivity {
         EditText inputsearch = findViewById(R.id.inputsearch);
         ListView friendsListView = findViewById(R.id.listViewFriends);
         ArrayList<FriendModel> friendsList = new ArrayList<>();
+        // Tìm TextView theo tên
+
 
 
         DatabaseReference database = FirebaseDatabase.getInstance().getReference("admin/");
@@ -88,6 +91,7 @@ public class Friends extends AppCompatActivity {
                 }
 
                 FriendAdapter adapter = new FriendAdapter(Friends.this, friendsList);
+                adapter.setEmail(email); // Đặt giá trị email cho adapter
                 ListView friendsListView = findViewById(R.id.listViewFriends);
                 friendsListView.setAdapter(adapter);
 
@@ -245,6 +249,7 @@ public class Friends extends AppCompatActivity {
                                     database.child(email+"/Friends/"+emaildongy+"/email").setValue(responseEmail);
                                     database.child(email+"/Friends/"+emaildongy+"/name").setValue(responseName);
                                     database.child(email+"/Friends/"+emaildongy+"/phone").setValue(responsePhone);
+                                    database.child(email+"/Friends/Response/"+emaildongy).removeValue();
                                     Toast.makeText(Friends.this,"Kết bạn thành công!",Toast.LENGTH_SHORT).show();
                                 }
                             });
@@ -279,6 +284,7 @@ public class Friends extends AppCompatActivity {
                             cardView.addView(innerLayout);
                             layout.addView(cardView);
                         }
+
                     }
 
                     @Override
@@ -299,6 +305,10 @@ public class Friends extends AppCompatActivity {
                 builder.show();
             }
         });
+
+        // nhan tin
+
+
     }
 
 

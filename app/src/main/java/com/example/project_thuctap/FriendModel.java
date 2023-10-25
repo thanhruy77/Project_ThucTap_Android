@@ -7,7 +7,7 @@ public class FriendModel {
     private String email;
     private String name;
     private String phone;
-    private int reply; // Thêm trường reply
+    private int reply;
     public FriendModel(String email, String name, String phone, int reply) {
         this.email = email;
         this.name = name;
